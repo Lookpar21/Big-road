@@ -1,5 +1,8 @@
 let results = JSON.parse(localStorage.getItem("results")) || [];
 
+// ----------------
+// Save & Control
+// ----------------
 function save() {
   localStorage.setItem("results", JSON.stringify(results));
 }
@@ -28,7 +31,7 @@ function addResult() {
 }
 
 // ----------------
-// Big Road (Grid)
+// Build Big Road Grid
 // ----------------
 function buildBigRoad() {
   const grid = [];
@@ -44,13 +47,14 @@ function buildBigRoad() {
       // ฝั่งเดิม → ลงต่อ
       row++;
       if (grid[col] && grid[col][row]) {
+        // ถ้าเต็ม → เปิดคอลัมน์ใหม่
         col++;
         row = 0;
       }
       if (!grid[col]) grid[col] = [];
       grid[col][row] = r;
     } else {
-      // เปลี่ยนฝั่ง → คอลัมน์ใหม่
+      // เปลี่ยนฝั่ง → เปิดคอลัมน์ใหม่
       col++;
       row = 0;
       if (!grid[col]) grid[col] = [];
@@ -59,7 +63,6 @@ function buildBigRoad() {
     last = r;
   });
 
-  console.log("Big Road Grid:", JSON.stringify(grid));
   return grid;
 }
 
@@ -70,16 +73,21 @@ function calcBigEye() {
   const big = buildBigRoad();
   const derived = [];
 
-  for (let c = 1; c < big.length; c++) {  // เริ่มจากคอลัมน์ที่ 2
+  // ต้องมีอย่างน้อย 2 คอลัมน์ และอย่างน้อยแถวที่ 2
+  for (let c = 1; c < big.length; c++) {
     const currCol = big[c];
     const prevCol = big[c - 1];
     if (!currCol || !prevCol) continue;
 
-    for (let r = 1; r < currCol.length; r++) { // เริ่มจากแถว 2
+    for (let r = 1; r < currCol.length; r++) {
       let color = "p"; // default น้ำเงิน
-      if (prevCol.length === currCol.length) {
+
+      // Rule: ถ้าคอลัมน์ก่อนหน้า (prevCol) มีแถวเพียงพอในตำแหน่งเดียวกัน
+      // หรือความสูงรวมเท่ากัน → แดง
+      if (prevCol[r - 1] !== undefined || prevCol.length === currCol.length) {
         color = "b"; // แดง
       }
+
       derived.push(color);
     }
   }
@@ -96,8 +104,8 @@ function makeCircle(type, road) {
     if (type === "b") div.classList.add("banker");
     if (type === "p") div.classList.add("player");
   } else if (road === "bigEye") {
-    if (type === "b") div.classList.add("banker");  // แดง
-    if (type === "p") div.classList.add("player");  // น้ำเงิน
+    if (type === "b") div.classList.add("banker"); // แดง
+    if (type === "p") div.classList.add("player"); // น้ำเงิน
   }
   return div;
 }
