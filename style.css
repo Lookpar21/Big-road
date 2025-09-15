@@ -1,0 +1,9 @@
+
+body { font-family: sans-serif; text-align: center; }
+.grid { display: grid; grid-template-columns: repeat(12, 30px); gap: 2px; margin: 10px auto; max-width: 400px;}
+.cell { width: 30px; height: 30px; border: 1px solid #ccc; display:flex; align-items:center; justify-content:center; font-weight: bold; font-size: 14px; color: white;}
+.B { background: red; border-radius: 50%; }
+.P { background: blue; border-radius: 50%; }
+.b { background: red; border-radius: 50%; }
+.p { background: blue; border-radius: 50%; }
+button { margin: 5px; padding: 8px 12px; font-size: 16px; }
