@@ -1,8 +1,5 @@
 let results = JSON.parse(localStorage.getItem("results")) || [];
 
-// ----------------
-// Save & Control
-// ----------------
 function save() {
   localStorage.setItem("results", JSON.stringify(results));
 }
@@ -31,7 +28,7 @@ function addResult() {
 }
 
 // ----------------
-// Build Big Road Grid (full rules)
+// Big Road (Grid)
 // ----------------
 function buildBigRoad() {
   const grid = [];
@@ -39,6 +36,7 @@ function buildBigRoad() {
 
   results.forEach(r => {
     if (r === "t") return; // Tie ไม่ขยับ
+
     if (last === null) {
       if (!grid[col]) grid[col] = [];
       grid[col][row] = r;
@@ -46,14 +44,13 @@ function buildBigRoad() {
       // ฝั่งเดิม → ลงต่อ
       row++;
       if (grid[col] && grid[col][row]) {
-        // ถ้าเต็มแล้ว → ย้ายคอลัมน์ใหม่
         col++;
         row = 0;
       }
       if (!grid[col]) grid[col] = [];
       grid[col][row] = r;
     } else {
-      // เปลี่ยนฝั่ง → เริ่มคอลัมน์ใหม่
+      // เปลี่ยนฝั่ง → คอลัมน์ใหม่
       col++;
       row = 0;
       if (!grid[col]) grid[col] = [];
@@ -62,30 +59,26 @@ function buildBigRoad() {
     last = r;
   });
 
+  console.log("Big Road Grid:", JSON.stringify(grid));
   return grid;
 }
 
 // ----------------
-// Derived Roads (full rules)
+// Big Eye Road
 // ----------------
-function calcDerived(type) {
+function calcBigEye() {
   const big = buildBigRoad();
   const derived = [];
-  const offset = type === "bigEye" ? 1 : type === "smallRoad" ? 2 : 3;
 
-  for (let c = offset; c < big.length; c++) {
+  for (let c = 1; c < big.length; c++) {  // เริ่มจากคอลัมน์ที่ 2
     const currCol = big[c];
-    if (!currCol) continue;
+    const prevCol = big[c - 1];
+    if (!currCol || !prevCol) continue;
 
-    for (let r = 0; r < currCol.length; r++) {
-      const refCol = big[c - offset];
-      let color = "p"; // น้ำเงิน
-
-      if (refCol) {
-        // ถ้า column ref มี และความยาวเท่ากัน → แดง
-        if (refCol.length === currCol.length) {
-          color = "b";
-        }
+    for (let r = 1; r < currCol.length; r++) { // เริ่มจากแถว 2
+      let color = "p"; // default น้ำเงิน
+      if (prevCol.length === currCol.length) {
+        color = "b"; // แดง
       }
       derived.push(color);
     }
@@ -102,9 +95,9 @@ function makeCircle(type, road) {
   if (road === "bigRoad") {
     if (type === "b") div.classList.add("banker");
     if (type === "p") div.classList.add("player");
-  } else {
-    if (type === "b") div.classList.add("banker");
-    if (type === "p") div.classList.add("player");
+  } else if (road === "bigEye") {
+    if (type === "b") div.classList.add("banker");  // แดง
+    if (type === "p") div.classList.add("player");  // น้ำเงิน
   }
   return div;
 }
@@ -119,9 +112,7 @@ function displayRoads() {
   const big = buildBigRoad();
   const bigFlat = big.flat();
   renderGrid("bigRoad", bigFlat);
-  renderGrid("bigEye", calcDerived("bigEye"));
-  renderGrid("smallRoad", calcDerived("smallRoad"));
-  renderGrid("cockroachRoad", calcDerived("cockroachRoad"));
+  renderGrid("bigEye", calcBigEye());
 }
 
 window.onload = displayRoads;
