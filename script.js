@@ -31,7 +31,7 @@ function addResult() {
 }
 
 // ----------------
-// Build Big Road Grid
+// Build Big Road Grid (full rules)
 // ----------------
 function buildBigRoad() {
   const grid = [];
@@ -43,17 +43,17 @@ function buildBigRoad() {
       if (!grid[col]) grid[col] = [];
       grid[col][row] = r;
     } else if (r === last) {
-      // เหมือนเดิม → ลงแถวถัดไป
+      // ฝั่งเดิม → ลงต่อ
       row++;
       if (grid[col] && grid[col][row]) {
-        // ถ้าเซลล์ถูกใช้แล้ว → เปิดคอลัมน์ใหม่
+        // ถ้าเต็มแล้ว → ย้ายคอลัมน์ใหม่
         col++;
         row = 0;
       }
       if (!grid[col]) grid[col] = [];
       grid[col][row] = r;
     } else {
-      // เปลี่ยนฝั่ง → เปิดคอลัมน์ใหม่
+      // เปลี่ยนฝั่ง → เริ่มคอลัมน์ใหม่
       col++;
       row = 0;
       if (!grid[col]) grid[col] = [];
@@ -62,12 +62,11 @@ function buildBigRoad() {
     last = r;
   });
 
-  console.log("Big Road Grid:", grid);
   return grid;
 }
 
 // ----------------
-// Derived Roads
+// Derived Roads (full rules)
 // ----------------
 function calcDerived(type) {
   const big = buildBigRoad();
@@ -76,13 +75,17 @@ function calcDerived(type) {
 
   for (let c = offset; c < big.length; c++) {
     const currCol = big[c];
-    const refCol = big[c - offset];
-    if (!currCol || !refCol) continue;
+    if (!currCol) continue;
 
     for (let r = 0; r < currCol.length; r++) {
-      let color = "p"; // default น้ำเงิน
-      if (refCol && refCol.length === currCol.length) {
-        color = "b"; // แดง
+      const refCol = big[c - offset];
+      let color = "p"; // น้ำเงิน
+
+      if (refCol) {
+        // ถ้า column ref มี และความยาวเท่ากัน → แดง
+        if (refCol.length === currCol.length) {
+          color = "b";
+        }
       }
       derived.push(color);
     }
