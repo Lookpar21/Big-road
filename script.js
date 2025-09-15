@@ -47,7 +47,7 @@ function buildBigRoad() {
       // ฝั่งเดิม → ลงต่อ
       row++;
       if (grid[col] && grid[col][row]) {
-        // ถ้าเต็ม → เปิดคอลัมน์ใหม่
+        // ถ้าตำแหน่งซ้ำ → เปิดคอลัมน์ใหม่
         col++;
         row = 0;
       }
@@ -73,19 +73,15 @@ function calcBigEye() {
   const big = buildBigRoad();
   const derived = [];
 
-  // ต้องมีอย่างน้อย 2 คอลัมน์ และอย่างน้อยแถวที่ 2
+  // ไล่ดูทุกคอลัมน์ตั้งแต่คอลัมน์ที่ 2
   for (let c = 1; c < big.length; c++) {
-    const currCol = big[c];
-    const prevCol = big[c - 1];
-    if (!currCol || !prevCol) continue;
+    for (let r = 1; r < big[c].length; r++) {
+      const prevCol = big[c - 1] || [];
+      let color = "p"; // เริ่มจากน้ำเงิน
 
-    for (let r = 1; r < currCol.length; r++) {
-      let color = "p"; // default น้ำเงิน
-
-      // Rule: ถ้าคอลัมน์ก่อนหน้า (prevCol) มีแถวเพียงพอในตำแหน่งเดียวกัน
-      // หรือความสูงรวมเท่ากัน → แดง
-      if (prevCol[r - 1] !== undefined || prevCol.length === currCol.length) {
-        color = "b"; // แดง
+      // ถ้าคอลัมน์ก่อนหน้ามีจุดตรงตำแหน่งเดียวกัน → แดง
+      if (prevCol[r] !== undefined) {
+        color = "b";
       }
 
       derived.push(color);
