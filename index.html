@@ -1,25 +1,39 @@
-
 <!DOCTYPE html>
-<html>
+<html lang="th">
 <head>
   <meta charset="UTF-8">
-  <title>Baccarat Road Tracker (v5)</title>
+  <title>Baccarat Road Tracker</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h2>Baccarat Road Tracker (v5)</h2>
-  <button onclick="addResult('B')">B</button>
-  <button onclick="addResult('P')">P</button>
-  <button onclick="undo()">Undo</button>
-  <button onclick="reset()">รีเซ็ต</button>
-  <h3>Big Road</h3>
-  <div id="bigRoad" class="grid"></div>
-  <h3>Big Eye Road</h3>
-  <div id="bigEye" class="grid"></div>
-  <h3>Small Road</h3>
-  <div id="smallRoad" class="grid"></div>
-  <h3>Cockroach Road</h3>
-  <div id="cockroach" class="grid"></div>
+  <h1>Baccarat Road Tracker</h1>
+
+  <div class="input-section">
+    <input id="inputResult" placeholder="ใส่ผล (B/P/T)">
+    <button onclick="addResult()">เพิ่มผล</button>
+    <button onclick="undo()">Undo</button>
+    <button onclick="resetAll()">Reset</button>
+  </div>
+
+  <div class="road-container">
+    <div>
+      <h2>Big Road</h2>
+      <div id="bigRoad" class="grid"></div>
+    </div>
+    <div>
+      <h2>Big Eye Road</h2>
+      <div id="bigEye" class="grid"></div>
+    </div>
+    <div>
+      <h2>Small Road</h2>
+      <div id="smallRoad" class="grid"></div>
+    </div>
+    <div>
+      <h2>Cockroach Road</h2>
+      <div id="cockroachRoad" class="grid"></div>
+    </div>
+  </div>
+
   <script src="script.js"></script>
 </body>
 </html>
