@@ -1,108 +1,124 @@
+let results = JSON.parse(localStorage.getItem("results")) || [];
 
-let results = [];
+// ----------------
+// Save & Control
+// ----------------
+function save() {
+  localStorage.setItem("results", JSON.stringify(results));
+}
 
-function addResult(r) {
-  results.push(r);
-  calculate();
+function resetAll() {
+  results = [];
+  save();
+  displayRoads();
 }
 
 function undo() {
   results.pop();
-  calculate();
+  save();
+  displayRoads();
 }
 
-function reset() {
-  results = [];
-  clearGrids();
+function addResult() {
+  const input = document.getElementById("inputResult").value.toLowerCase().replace(/[^bpt]/g, "");
+  if (!input) return;
+  for (let char of input) {
+    results.push(char);
+  }
+  document.getElementById("inputResult").value = "";
+  save();
+  displayRoads();
 }
 
-function calculate() {
-  let bigRoad = buildBigRoad(results);
-  let bigEye = buildDerived(bigRoad, 1, false); // Big Eye
-  let small = buildDerived(bigRoad, 2, true);   // Small = flip color
-  let cockroach = buildDerived(bigRoad, 3, true); // Cockroach = flip color
+// ----------------
+// Build Big Road Grid
+// ----------------
+function buildBigRoad() {
+  const grid = [];
+  let col = 0;
+  let row = 0;
+  let last = null;
 
-  drawBigRoad('bigRoad', bigRoad);
-  drawGrid('bigEye', bigEye);
-  drawGrid('smallRoad', small);
-  drawGrid('cockroach', cockroach);
-}
-
-function clearGrids(){
-  ['bigRoad','bigEye','smallRoad','cockroach'].forEach(id => document.getElementById(id).innerHTML='');
-}
-
-function buildBigRoad(results) {
-  let grid = [];
-  let col = 0, row = 0, last = null;
-  results.forEach(r=>{
-    if (last && r===last) row++;
-    else { col++; row=0; }
-    if(!grid[col]) grid[col]=[];
-    grid[col][row]=r;
-    last=r;
+  results.forEach(r => {
+    if (r === "t") return; // tie doesn't move
+    if (last === null) {
+      if (!grid[col]) grid[col] = [];
+      grid[col][row] = r;
+    } else if (r === last) {
+      // same side → go down
+      row++;
+      if (grid[col] && grid[col][row]) {
+        // if occupied → new column
+        col++;
+        row = 0;
+      }
+      if (!grid[col]) grid[col] = [];
+      grid[col][row] = r;
+    } else {
+      // switch side → new column
+      col++;
+      row = 0;
+      if (!grid[col]) grid[col] = [];
+      grid[col][row] = r;
+    }
+    last = r;
   });
+
   return grid;
 }
 
-function buildDerived(bigRoad, offset, flipColor) {
-  let derived=[];
-  for (let c=offset+1;c<bigRoad.length;c++) {
-    if(!bigRoad[c]) continue;
-    for (let r=0;r<bigRoad[c].length;r++) {
-      let color = compareColumnsAdvanced(bigRoad, c, r, offset, flipColor);
-      if(!derived[c]) derived[c]=[];
-      derived[c][r]=color;
+// ----------------
+// Derived Roads
+// ----------------
+function calcDerived(type) {
+  const big = buildBigRoad();
+  const derived = [];
+  const offset = type === "bigEye" ? 1 : type === "smallRoad" ? 2 : 3;
+
+  for (let c = offset; c < big.length; c++) {
+    for (let r = 0; r < big[c].length; r++) {
+      const compareCol = c - offset;
+      let color = "p"; // default blue
+      if (big[compareCol]) {
+        if (big[compareCol].length === big[c].length) {
+          color = "b"; // red
+        }
+      }
+      derived.push(color);
     }
   }
   return derived;
 }
 
-function compareColumnsAdvanced(bigRoad,c,r,offset,flip) {
-  let refCol = bigRoad[c-offset]||[];
-  let refPrev = bigRoad[c-offset-1]||[];
-  let sameHeight = (refCol.length === refPrev.length);
-  let color;
-
-  if (r===0) {
-    // เริ่มคอลใหม่: เทียบจำนวนจุดในคอลอ้างอิงกับคอลก่อนหน้า
-    color = sameHeight ? 'b' : 'p';
+// ----------------
+// Render
+// ----------------
+function makeCircle(type, road) {
+  const div = document.createElement("div");
+  div.classList.add("circle");
+  if (road === "bigRoad") {
+    if (type === "b") div.classList.add("banker");
+    if (type === "p") div.classList.add("player");
   } else {
-    // ลงต่อในคอล: ดูว่ามีจุดที่แถวเดียวกันของคอลอ้างอิงหรือไม่
-    if (refCol[r]) {
-      color = 'b';
-    } else {
-      // กติกาพิเศษ: ถ้าไม่มีจุด ใช้ความสูงคอลอ้างอิงเทียบคอลก่อนหน้า
-      color = sameHeight ? 'b' : 'p';
-    }
+    if (type === "b") div.classList.add("banker");
+    if (type === "p") div.classList.add("player");
   }
-  if (flip) color = (color === 'b') ? 'p' : 'b'; // flip สำหรับ Small / Cockroach
-  return color;
+  return div;
 }
 
-function drawBigRoad(id, grid) {
-  let container = document.getElementById(id);
-  container.innerHTML='';
-  for(let c=1;c<grid.length;c++) {
-    if(!grid[c]) continue;
-    for(let r=0;r<grid[c].length;r++) {
-      let cell=document.createElement('div');
-      cell.className='cell '+(grid[c][r]||'');
-      cell.textContent=grid[c][r];
-      container.appendChild(cell);
-    }
-  }
+function renderGrid(containerId, data) {
+  const grid = document.getElementById(containerId);
+  grid.innerHTML = "";
+  data.forEach(item => grid.appendChild(makeCircle(item, containerId)));
 }
 
-function drawGrid(id, grid) {
-  let container = document.getElementById(id);
-  container.innerHTML='';
-  for(let c=1;c<grid.length;c++) {
-    if(!grid[c]) continue;
-    for(let r=0;r<grid[c].length;r++) {
-      let cell=document.createElement('div');
-      cell.className='cell '+(grid[c][r]||'');
-      container.appendChild(cell);
-    }
-  }
+function displayRoads() {
+  const big = buildBigRoad();
+  const bigFlat = big.flat();
+  renderGrid("bigRoad", bigFlat);
+  renderGrid("bigEye", calcDerived("bigEye"));
+  renderGrid("smallRoad", calcDerived("smallRoad"));
+  renderGrid("cockroachRoad", calcDerived("cockroachRoad"));
 }
+
+window.onload = displayRoads;
