@@ -1,9 +1,43 @@
+body {
+  font-family: sans-serif;
+  text-align: center;
+  margin: 20px;
+  background: #f5f5f5;
+}
 
-body { font-family: sans-serif; text-align: center; }
-.grid { display: grid; grid-template-columns: repeat(12, 30px); gap: 2px; margin: 10px auto; max-width: 400px;}
-.cell { width: 30px; height: 30px; border: 1px solid #ccc; display:flex; align-items:center; justify-content:center; font-weight: bold; font-size: 14px; color: white;}
-.B { background: red; border-radius: 50%; }
-.P { background: blue; border-radius: 50%; }
-.b { background: red; border-radius: 50%; }
-.p { background: blue; border-radius: 50%; }
-button { margin: 5px; padding: 8px 12px; font-size: 16px; }
+.input-section {
+  margin-bottom: 20px;
+}
+
+button {
+  margin: 5px;
+  padding: 8px 15px;
+}
+
+.road-container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(20, 20px);
+  grid-auto-rows: 20px;
+  gap: 2px;
+  background: white;
+  padding: 5px;
+  border: 1px solid #333;
+  min-height: 200px;
+}
+
+.circle {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  margin: auto;
+}
+
+.banker { background: red; }
+.player { background: blue; }
+.tie    { background: green; }
